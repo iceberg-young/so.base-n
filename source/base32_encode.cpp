@@ -8,34 +8,20 @@
 
 namespace so {
     namespace {
-        const char* base32_alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "234567";
-        const char* base32hex_alphabet = "0123456789" "ABCDEFGHIJKLMNOPQRSTUV";
-
         class base32_encode :
-          public base_encode {
+          public base_encode<base32> {
          public:
             base32_encode(bool hex, bool padding) :
-              alphabet(hex ? base32hex_alphabet : base32_alphabet),
-              padding(padding),
-              part(0),
-              step(4) {}
+              base_encode(
+                hex
+                  ? "0123456789" "ABCDEFGHIJKLMNOPQRSTUV"
+                  : "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "234567",
+                padding
+              ) {}
 
          protected:
-            void complete(std::string& text) final override {
-                if (this->step != 4) {
-                    text += this->digit(this->part);
-                    if (this->padding) {
-                        text.append(8 - text.size() % 8, '=');
-                    }
-                }
-            }
-
-            size_t estimate(size_t data) const final override {
-                return (data + 4) / 5 * 8;
-            }
-
-            void push(uint8_t v, std::string& text) {
-                switch (++this->step %= 5) {
+            void push(uint8_t v, std::string& text) final override {
+                switch (this->forward()) {
                     case 0: {
                         text += this->digit(v >> 3);
                         this->part = v << 2;
@@ -68,18 +54,6 @@ namespace so {
                     }
                 }
             }
-
-         private:
-            char digit(uint8_t value) {
-                return this->alphabet[value & 0x1F];
-            }
-
-         private:
-            const char* alphabet;
-            const bool padding;
-
-            uint8_t part;
-            uint8_t step;
         };
     }
 

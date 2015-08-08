@@ -8,42 +8,22 @@
 
 namespace so {
     namespace {
-        const char* base64_alphabet = ""
-          "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-          "abcdefghijklmnopqrstuvwxyz"
-          "0123456789"
-          "+/";
-        const char* base64url_alphabet = ""
-          "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-          "abcdefghijklmnopqrstuvwxyz"
-          "0123456789"
-          "-_";
-
         class base64_encode :
-          public base_encode {
+          public base_encode<base64> {
          public:
             base64_encode(bool url, bool padding) :
-              alphabet(url ? base64url_alphabet : base64_alphabet),
-              padding(padding),
-              part(0),
-              step(2) {}
+              base_encode(
+                url
+                  ? "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz"
+                  "0123456789" "-_"
+                  : "ABCDEFGHIJKLMNOPQRSTUVWXYZ" "abcdefghijklmnopqrstuvwxyz"
+                  "0123456789" "+/",
+                padding
+              ) {}
 
          protected:
-            void complete(std::string& text) final override {
-                if (this->step != 2) {
-                    text += this->digit(this->part);
-                    if (this->padding) {
-                        text += this->step ? "=" : "==";
-                    }
-                }
-            }
-
-            size_t estimate(size_t data) const final override {
-                return (data + 2) / 3 * 4;
-            }
-
-            void push(uint8_t v, std::string& text) {
-                switch (++this->step %= 3) {
+            void push(uint8_t v, std::string& text) final override {
+                switch (this->forward()) {
                     case 0: {
                         text += this->digit(v >> 2);
                         this->part = v << 4;
@@ -64,18 +44,6 @@ namespace so {
                     }
                 }
             }
-
-         private:
-            char digit(uint8_t value) {
-                return this->alphabet[value & 0x3F];
-            }
-
-         private:
-            const char* alphabet;
-            const bool padding;
-
-            uint8_t part;
-            uint8_t step;
         };
     }
 

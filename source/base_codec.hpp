@@ -42,13 +42,38 @@ namespace so {
         return 2;
     }
 
-    template<class variety_t>
-    class base_decode {
+    template<typename base_t>
+    constexpr uint8_t mask_per_digit();
+
+    template<>
+    constexpr uint8_t mask_per_digit<base64>() {
+        return 0x3F;
+    }
+
+    template<>
+    constexpr uint8_t mask_per_digit<base32>() {
+        return 0x1F;
+    }
+
+    template<>
+    constexpr uint8_t mask_per_digit<base16>() {
+        return 0x0F;
+    }
+
+    class base_codec {
      public:
-        base_decode() :
+        base_codec() :
           part(0),
           step(-1) {}
 
+     protected:
+        uint8_t part;
+        uint8_t step;
+    };
+
+    template<class base_t>
+    class base_decode :
+      public base_codec {
      public:
         template<typename data_t>
         data_t decode(const std::string& text) {
@@ -66,22 +91,26 @@ namespace so {
      protected:
         constexpr size_t estimate(size_t text) const {
             return text
-              * bytes_per_unit<variety_t>()
-              / digits_per_unit<variety_t>();
+              * bytes_per_unit<base_t>()
+              / digits_per_unit<base_t>();
         }
 
         uint8_t forward() {
-            return ++this->step %= digits_per_unit<variety_t>();
+            return ++this->step %= digits_per_unit<base_t>();
         }
 
-        virtual bool pop(char c, uint8_t& v) = 0;
-
      protected:
-        uint8_t part;
-        uint8_t step;
+        virtual bool pop(char c, uint8_t& v) = 0;
     };
 
-    class base_encode {
+    template<class base_t>
+    class base_encode :
+      public base_codec {
+     public:
+        base_encode(const char* alphabet, bool padding) :
+          alphabet(alphabet),
+          padding(padding) {}
+
      public:
         template<typename data_t>
         std::string encode(const data_t& data) {
@@ -95,10 +124,35 @@ namespace so {
         }
 
      protected:
-        virtual void complete(std::string& text) = 0;
+        void complete(std::string& text) {
+            if (this->forward()) {
+                text += this->digit(this->part);
+                if (this->padding) {
+                    auto dpu = digits_per_unit<base_t>();
+                    text.append(dpu - text.size() % dpu, '=');
+                }
+            }
+        }
 
-        virtual size_t estimate(size_t data) const = 0;
+        char digit(uint8_t value) {
+            return this->alphabet[value & mask_per_digit<base_t>()];
+        }
 
+        constexpr size_t estimate(size_t data) const {
+            return (data + bytes_per_unit<base_t>() - 1)
+              / bytes_per_unit<base_t>()
+              * digits_per_unit<base_t>();
+        }
+
+        uint8_t forward() {
+            return ++this->step %= bytes_per_unit<base_t>();
+        }
+
+     protected:
         virtual void push(uint8_t v, std::string& text) = 0;
+
+     protected:
+        const char* alphabet;
+        const bool padding;
     };
 }
