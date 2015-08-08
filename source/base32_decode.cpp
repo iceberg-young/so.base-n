@@ -40,25 +40,19 @@ namespace so {
         }
 
         class base32_decode :
-          public base_decode {
+          public base_decode<base32> {
          public:
             base32_decode(bool hex) :
-              value(hex ? &lookup_hex : &lookup),
-              part(0),
-              step(7) {}
+              value(hex ? &lookup_hex : &lookup) {}
 
          protected:
-            size_t estimate(size_t text) const final override {
-                return text * 5 / 8;
-            }
-
             bool pop(char c, uint8_t& v) final override {
                 if (c == '=') {
-                    this->step = 7;
+                    this->step = -1;
                     return false;
                 }
 
-                switch (++this->step %= 8) {
+                switch (this->forward()) {
                     case 0: {
                         this->part = this->value(c) << 3;
                         return false;
@@ -107,9 +101,6 @@ namespace so {
 
          private:
             uint8_t (* const value)(char);
-
-            uint8_t part;
-            uint8_t step;
         };
     }
 

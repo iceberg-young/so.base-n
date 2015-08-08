@@ -6,7 +6,49 @@
 #pragma once
 
 namespace so {
+    template<typename base_t>
+    constexpr size_t bytes_per_unit();
+
+    template<>
+    constexpr size_t bytes_per_unit<base64>() {
+        return 3;
+    }
+
+    template<>
+    constexpr size_t bytes_per_unit<base32>() {
+        return 5;
+    }
+
+    template<>
+    constexpr size_t bytes_per_unit<base16>() {
+        return 1;
+    }
+
+    template<typename base_t>
+    constexpr size_t digits_per_unit();
+
+    template<>
+    constexpr size_t digits_per_unit<base64>() {
+        return 4;
+    }
+
+    template<>
+    constexpr size_t digits_per_unit<base32>() {
+        return 8;
+    }
+
+    template<>
+    constexpr size_t digits_per_unit<base16>() {
+        return 2;
+    }
+
+    template<class variety_t>
     class base_decode {
+     public:
+        base_decode() :
+          part(0),
+          step(-1) {}
+
      public:
         template<typename data_t>
         data_t decode(const std::string& text) {
@@ -22,9 +64,21 @@ namespace so {
         }
 
      protected:
-        virtual size_t estimate(size_t text) const = 0;
+        constexpr size_t estimate(size_t text) const {
+            return text
+              * bytes_per_unit<variety_t>()
+              / digits_per_unit<variety_t>();
+        }
+
+        uint8_t forward() {
+            return ++this->step %= digits_per_unit<variety_t>();
+        }
 
         virtual bool pop(char c, uint8_t& v) = 0;
+
+     protected:
+        uint8_t part;
+        uint8_t step;
     };
 
     class base_encode {

@@ -25,8 +25,12 @@ namespace so {
     };
 
     // Base 64 encoding with URL and filename safe alphabet.
-    class base64url :
-      public base64 /* Borrow decoders. */ {
+    class base64url {
+     public:
+        static std::string decode_text(const std::string& text);
+
+        static std::vector<uint8_t> decode(const std::string& text);
+
      public:
         static std::string encode(const std::string& data, bool padding = false);
 
@@ -69,7 +73,6 @@ namespace so {
     };
 
     // Base 16 encoding.
-    //using base16 = base_n<base_variety::base16>;
     class base16 {
      public:
         static std::string decode_text(const std::string& text);

@@ -27,24 +27,15 @@ namespace so {
         }
 
         class base64_decode :
-          public base_decode {
-         public:
-            base64_decode() :
-              part(0),
-              step(3) {}
-
+          public base_decode<base64> {
          protected:
-            size_t estimate(size_t text) const final override {
-                return text * 3 / 4;
-            }
-
             bool pop(char c, uint8_t& v) final override {
                 if (c == '=') {
-                    this->step = 3;
+                    this->step = -1;
                     return false;
                 }
 
-                switch (++this->step %= 4) {
+                switch (this->forward()) {
                     case 0: {
                         this->part = value(c) << 2;
                         return false;
@@ -70,10 +61,6 @@ namespace so {
                     }
                 }
             }
-
-         private:
-            uint8_t part;
-            uint8_t step;
         };
     }
 
@@ -83,6 +70,16 @@ namespace so {
     }
 
     std::vector<uint8_t> base64::decode(const std::string& text) {
+        base64_decode decoder;
+        return decoder.decode<std::vector<uint8_t>>(text);
+    }
+
+    std::string base64url::decode_text(const std::string& text) {
+        base64_decode decoder;
+        return decoder.decode<std::string>(text);
+    }
+
+    std::vector<uint8_t> base64url::decode(const std::string& text) {
         base64_decode decoder;
         return decoder.decode<std::vector<uint8_t>>(text);
     }

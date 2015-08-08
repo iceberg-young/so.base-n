@@ -25,31 +25,18 @@ namespace so {
         }
 
         class base16_decode :
-          public base_decode {
-         public:
-            base16_decode() :
-              half(0),
-              step(1) {}
-
+          public base_decode<base16> {
          protected:
-            size_t estimate(size_t text) const final override {
-                return text / 2;
-            }
-
             bool pop(char c, uint8_t& v) final override {
-                if (++this->step %= 2) {
-                    v = this->half | value(c);
+                if (this->forward()) {
+                    v = this->part | value(c);
                     return true;
                 }
                 else {
-                    this->half = value(c) << 4;
+                    this->part = value(c) << 4;
                     return false;
                 }
             }
-
-         private:
-            uint8_t half;
-            uint8_t step;
         };
     }
 
