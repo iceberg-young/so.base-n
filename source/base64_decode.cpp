@@ -31,8 +31,7 @@ namespace so {
          public:
             base64_decode() :
               part(0),
-              step(3),
-              skip(false) {}
+              step(3) {}
 
          protected:
             size_t estimate(size_t text) const final override {
@@ -40,6 +39,11 @@ namespace so {
             }
 
             bool pop(char c, uint8_t& v) final override {
+                if (c == '=') {
+                    this->step = 3;
+                    return false;
+                }
+
                 switch (++this->step %= 4) {
                     case 0: {
                         this->part = value(c) << 2;
@@ -52,23 +56,12 @@ namespace so {
                         return true;
                     }
                     case 2: {
-                        if (c == '=') {
-                            this->skip = true;
-                            return false;
-                        }
-
                         uint8_t rest = value(c);
                         v = this->part | (rest >> 2);
                         this->part = rest << 6;
                         return true;
                     }
                     case 3: {
-                        if (c == '=') {
-                            this->skip = false;
-                            return false;
-                        }
-                        if (this->skip) throw this->skip; // FIXME incomplete padding ..=[=]
-
                         v = this->part | value(c);
                         return true;
                     }
@@ -81,7 +74,6 @@ namespace so {
          private:
             uint8_t part;
             uint8_t step;
-            bool skip;
         };
     }
 
