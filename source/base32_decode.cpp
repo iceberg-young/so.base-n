@@ -17,7 +17,7 @@ namespace so {
             if ('a' <= digit and digit <= 'v') {
                 return digit - 'a' + 0Xa;
             }
-            throw new std::out_of_range{
+            throw std::out_of_range{
               std::to_string(digit) + " is not in Base32-HEX alphabet."
             };
         }
@@ -32,7 +32,7 @@ namespace so {
             if ('2' <= digit and digit <= '7') {
                 return digit - '2' + 26;
             }
-            throw new std::out_of_range{
+            throw std::out_of_range{
               std::to_string(digit) + " is not in Base32 alphabet."
             };
         }
@@ -44,6 +44,10 @@ namespace so {
               hex(hex) {}
 
          protected:
+            bool is_complete(size_t n) const final override {
+                return n == 2 or n == 4 or n == 5 or n == 7;
+            }
+
             size_t shrink(uint8_t* tmp, uint8_t* out, size_t length) const final override {
                 if (length < 2) return 0;
                 out[0] = (tmp[0] << 3) | (tmp[1] >> 2);

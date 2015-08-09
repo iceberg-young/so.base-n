@@ -10,6 +10,10 @@ namespace so {
         class base64_decode :
           public base_decode<base64> {
          protected:
+            bool is_complete(size_t n) const final override {
+                return n == 2 or n == 3;
+            }
+
             size_t shrink(uint8_t* tmp, uint8_t* out, size_t length) const final override {
                 if (length < 2) return 0;
                 out[0] = (tmp[0] << 2) | (tmp[1] >> 4);
@@ -32,7 +36,7 @@ namespace so {
                 }
                 if (digit == '+' or digit == '-') return 62;
                 if (digit == '/' or digit == '_') return 63;
-                throw new std::out_of_range{
+                throw std::out_of_range{
                   std::to_string(digit) + " is not in Base64 alphabet."
                 };
             }

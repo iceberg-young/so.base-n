@@ -10,6 +10,10 @@ namespace so {
         class base16_decode :
           public base_decode<base16> {
          protected:
+            bool is_complete(size_t) const final override {
+                return false; // Base16 does not need padding.
+            }
+
             size_t shrink(uint8_t* tmp, uint8_t* out, size_t length) const final override {
                 if (length < 2) return 0;
                 *out = (tmp[0] << 4) | tmp[1];
@@ -26,7 +30,7 @@ namespace so {
                 if ('a' <= digit and digit <= 'f') {
                     return digit - 'a' + 0Xa;
                 }
-                throw new std::out_of_range{
+                throw std::out_of_range{
                   std::to_string(digit) + " is not in Base16 alphabet."
                 };
             }
