@@ -56,7 +56,7 @@ See [base-n.hpp](include/base-n.hpp).
 
   > **Note!**
   > These functions are not preferred *by semantics*.
-  > And Use with caution when the system has a non-trivial `char`.
+  > And use with caution when the system has a non-trivial `char`.
 
 
 Implementation Defined Behavior
@@ -66,7 +66,7 @@ Decode functions will **not stop** at the end of padding sequence.
 Means concatenate text can be decoded in one call. E.g.
 
 ```cpp
-std::cout << base64::decode_text("Zm9vYmE=Zm9vYg==Zm8=Zg==");
+std::cout << so::base64::decode_text("Zm9vYmE=Zm9vYg==Zm8=Zg==");
 ```
 > ```
 > foobafoobfof
