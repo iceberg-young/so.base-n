@@ -3,8 +3,7 @@
  * @license GNU Lesser General Public License version 3
  */
 
-#include "base-n.hpp"
-#include "base_codec.hpp"
+#include "base_encode.hpp"
 
 namespace so {
     namespace {
@@ -20,39 +19,24 @@ namespace so {
               ) {}
 
          protected:
-            void push(uint8_t v, std::string& text) final override {
-                switch (this->forward()) {
-                    case 0: {
-                        text += this->digit(v >> 3);
-                        this->part = v << 2;
-                        break;
-                    }
-                    case 1: {
-                        text += this->digit(this->part | v >> 6);
-                        text += this->digit(v >> 1);
-                        this->part = v << 4;
-                        break;
-                    }
-                    case 2: {
-                        text += this->digit(this->part | v >> 4);
-                        this->part = v << 1;
-                        break;
-                    }
-                    case 3: {
-                        text += this->digit(this->part | v >> 7);
-                        text += this->digit(v >> 2);
-                        this->part = v << 3;
-                        break;
-                    }
-                    case 4: {
-                        text += this->digit(this->part | v >> 5);
-                        text += this->digit(v);
-                        break;
-                    }
-                    default: {
-                        throw this->step;
-                    }
-                }
+            size_t stretch(const uint8_t*& in, uint8_t* tmp, const uint8_t* end) const final override {
+                tmp[0] = *in >> 3;
+                tmp[1] = *in << 2;
+                if (++in >= end) return 2;
+                tmp[1] |= *in >> 6;
+                tmp[2] = *in >> 1;
+                tmp[3] = *in << 4;
+                if (++in >= end) return 4;
+                tmp[3] |= *in >> 4;
+                tmp[4] = *in << 1;
+                if (++in >= end) return 5;
+                tmp[4] |= *in >> 7;
+                tmp[5] = *in >> 2;
+                tmp[6] = *in << 3;
+                if (++in >= end) return 7;
+                tmp[6] |= *in >> 5;
+                tmp[7] = *in++;
+                return 8;
             }
         };
     }

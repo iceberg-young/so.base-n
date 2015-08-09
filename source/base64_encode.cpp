@@ -3,8 +3,7 @@
  * @license GNU Lesser General Public License version 3
  */
 
-#include "base-n.hpp"
-#include "base_codec.hpp"
+#include "base_encode.hpp"
 
 namespace so {
     namespace {
@@ -22,27 +21,16 @@ namespace so {
               ) {}
 
          protected:
-            void push(uint8_t v, std::string& text) final override {
-                switch (this->forward()) {
-                    case 0: {
-                        text += this->digit(v >> 2);
-                        this->part = v << 4;
-                        break;
-                    }
-                    case 1: {
-                        text += this->digit(this->part | v >> 4);
-                        this->part = v << 2;
-                        break;
-                    }
-                    case 2: {
-                        text += this->digit(this->part | v >> 6);
-                        text += this->digit(v);
-                        break;
-                    }
-                    default: {
-                        throw this->step;
-                    }
-                }
+            size_t stretch(const uint8_t*& in, uint8_t* tmp, const uint8_t* end) const final override {
+                tmp[0] = *in >> 2;
+                tmp[1] = *in << 4;
+                if (++in >= end) return 2;
+                tmp[1] |= *in >> 4;
+                tmp[2] = *in << 2;
+                if (++in >= end) return 3;
+                tmp[2] |= *in >> 6;
+                tmp[3] = *in++;
+                return 4;
             }
         };
     }

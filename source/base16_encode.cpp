@@ -3,8 +3,7 @@
  * @license GNU Lesser General Public License version 3
  */
 
-#include "base-n.hpp"
-#include "base_codec.hpp"
+#include "base_encode.hpp"
 
 namespace so {
     namespace {
@@ -15,8 +14,10 @@ namespace so {
               base_encode("0123456789ABCDEF", false) {}
 
          protected:
-            void push(uint8_t b, std::string& text) final override {
-                (text += this->digit(b >> 4)) += this->digit(b);
+            size_t stretch(const uint8_t*& in, uint8_t* tmp, const uint8_t* end) const final override {
+                tmp[0] = *in >> 4;
+                tmp[1] = *in++;
+                return 2;
             }
         };
     }
