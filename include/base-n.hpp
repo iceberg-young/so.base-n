@@ -11,6 +11,14 @@ namespace so {
     // Base 64 encoding.
     class base64 {
      public:
+        static constexpr uint8_t digit_mask = 0x3F;
+        struct {
+            static constexpr int bytes = 3;
+            static constexpr int digits = 4;
+        }
+        static per_unit;
+
+     public:
         static std::string decode_text(const std::string& text, bool liberal = false);
 
         static std::vector<uint8_t> decode(const std::string& text, bool liberal = false);
@@ -37,6 +45,14 @@ namespace so {
     // Base 32 encoding.
     class base32 {
      public:
+        static constexpr uint8_t digit_mask = 0x1F;
+        struct {
+            static constexpr int bytes = 5;
+            static constexpr int digits = 8;
+        }
+        static per_unit;
+
+     public:
         static std::string decode_text(const std::string& text, bool liberal = false);
 
         static std::vector<uint8_t> decode(const std::string& text, bool liberal = false);
@@ -62,6 +78,14 @@ namespace so {
 
     // Base 16 encoding.
     class base16 {
+     public:
+        static constexpr uint8_t digit_mask = 0x0F;
+        struct {
+            static constexpr int bytes = 1;
+            static constexpr int digits = 2;
+        }
+        static per_unit;
+
      public:
         static std::string decode_text(const std::string& text, bool liberal = false);
 

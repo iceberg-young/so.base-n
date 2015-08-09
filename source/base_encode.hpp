@@ -5,7 +5,7 @@
 
 #pragma once
 
-#include "base_codec.hpp"
+#include "base-n.hpp"
 
 namespace so {
     template<class base_t>
@@ -17,23 +17,23 @@ namespace so {
 
      public:
         char digit(uint8_t value) const {
-            return this->alphabet[value & per_digit<base_t>::mask];
+            return this->alphabet[value & base_t::digit_mask];
         }
 
-        size_t estimate(size_t data) const {
+        constexpr size_t estimate(size_t data) const {
             return this->padding
-              ? (data + per_unit<base_t>::bytes - 1)
-                / per_unit<base_t>::bytes * per_unit<base_t>::digits
-              : (data * per_unit<base_t>::digits + per_unit<base_t>::bytes - 1)
-                / per_unit<base_t>::bytes;
+              ? (data + base_t::per_unit.bytes - 1)
+                / base_t::per_unit.bytes * base_t::per_unit.digits
+              : (data * base_t::per_unit.digits + base_t::per_unit.bytes - 1)
+                / base_t::per_unit.bytes;
         }
 
      public:
         template<typename data_t>
-        std::string encode(const data_t& data) {
+        std::string encode(const data_t& data) const {
             auto end = reinterpret_cast<const uint8_t*>(&*data.end());
-            uint8_t tmp[per_unit<base_t>::digits];
-            char out[per_unit<base_t>::digits];
+            uint8_t tmp[base_t::per_unit.digits];
+            char out[base_t::per_unit.digits];
 
             std::string text;
             text.reserve(this->estimate(data.size()));
