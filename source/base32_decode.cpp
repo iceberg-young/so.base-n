@@ -3,9 +3,7 @@
  * @license GNU Lesser General Public License version 3
  */
 
-#include "base-n.hpp"
-#include "base_codec.hpp"
-#include <stdexcept>
+#include "base_decode.hpp"
 
 namespace so {
     namespace {
@@ -43,84 +41,49 @@ namespace so {
           public base_decode<base32> {
          public:
             base32_decode(bool hex) :
-              value(hex ? &lookup_hex : &lookup) {}
+              hex(hex) {}
 
          protected:
-            bool pop(char c, uint8_t& v) final override {
-                if (c == '=') {
-                    this->step = -1;
-                    return false;
-                }
+            size_t shrink(uint8_t* tmp, uint8_t* out, size_t length) const final override {
+                if (length < 2) return 0;
+                out[0] = (tmp[0] << 3) | (tmp[1] >> 2);
+                if (length < 4) return 1;
+                out[1] = (tmp[1] << 6) | (tmp[2] << 1) | (tmp[3] >> 4);
+                if (length < 5) return 2;
+                out[2] = (tmp[3] << 4) | (tmp[4] >> 1);
+                if (length < 7) return 3;
+                out[3] = (tmp[4] << 7) | (tmp[5] << 2) | (tmp[6] >> 3);
+                if (length < 8) return 4;
+                out[4] = (tmp[6] << 5) | tmp[7];
+                return 5;
+            }
 
-                switch (this->forward()) {
-                    case 0: {
-                        this->part = this->value(c) << 3;
-                        return false;
-                    }
-                    case 1: {
-                        uint8_t rest = this->value(c);
-                        v = this->part | (rest >> 2);
-                        this->part = rest << 6;
-                        return true;
-                    }
-                    case 2: {
-                        this->part |= this->value(c) << 1;
-                        return false;
-                    }
-                    case 3: {
-                        uint8_t rest = this->value(c);
-                        v = this->part | (rest >> 4);
-                        this->part = rest << 4;
-                        return true;
-                    }
-                    case 4: {
-                        uint8_t rest = this->value(c);
-                        v = this->part | (rest >> 1);
-                        this->part = rest << 7;
-                        return true;
-                    }
-                    case 5: {
-                        this->part |= this->value(c) << 2;
-                        return false;
-                    }
-                    case 6: {
-                        uint8_t rest = this->value(c);
-                        v = this->part | (rest >> 3);
-                        this->part = rest << 5;
-                        return true;
-                    }
-                    case 7: {
-                        v = this->part | this->value(c);
-                        return true;
-                    }
-                    default: {
-                        throw this->step;
-                    }
-                }
+            uint8_t value(char digit) const final override {
+                return this->hex ? lookup_hex(digit) : lookup(digit);
             }
 
          private:
-            uint8_t (* const value)(char);
+            const bool hex;
         };
     }
 
-    std::string base32::decode_text(const std::string& text) {
+    std::string base32::decode_text(const std::string& text, bool liberal) {
         base32_decode decoder{false};
-        return decoder.decode<std::string>(text);
+        return decoder.decode<std::string>(text, liberal);
     }
 
-    std::vector<uint8_t> base32::decode(const std::string& text) {
+    std::vector<uint8_t> base32::decode(const std::string& text, bool liberal) {
         base32_decode decoder{false};
-        return decoder.decode<std::vector<uint8_t>>(text);
+        return decoder.decode<std::vector<uint8_t>>(text, liberal);
     }
 
-    std::string base32hex::decode_text(const std::string& text) {
+    std::string base32hex::decode_text(const std::string& text, bool liberal) {
         base32_decode decoder{true};
-        return decoder.decode<std::string>(text);
+        return decoder.decode<std::string>(text, liberal);
     }
 
-    std::vector<uint8_t> base32hex::decode(const std::string& text) {
+    std::vector<uint8_t> base32hex::decode(const std::string& text, bool liberal) {
         base32_decode decoder{true};
-        return decoder.decode<std::vector<uint8_t>>(text);
+        return decoder.decode<std::vector<uint8_t>>(text, liberal);
     }
 }
