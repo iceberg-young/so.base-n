@@ -13,25 +13,35 @@ See [base-n.hpp](include/base-n.hpp).
 - Decode data from a base-*n* string.
 
   ```cpp
-  so::base64::decode(std::string text, bool liberal) -> std::vector<uint8_t>
-  so::base64url::decode(std::string text, bool liberal) -> std::vector<uint8_t>
-  so::base32::decode(std::string text, bool liberal) -> std::vector<uint8_t>
-  so::base32hex::decode(std::string text, bool liberal) -> std::vector<uint8_t>
-  so::base16::decode(std::string text, bool liberal) -> std::vector<uint8_t>
+  static
+  std::vector<uint8_t>  so::base64::decode(std::string text, bool liberal);
+  static
+  std::vector<uint8_t>  so::base64url::decode(std::string text, bool liberal);
+  static
+  std::vector<uint8_t>  so::base32::decode(std::string text, bool liberal);
+  static
+  std::vector<uint8_t>  so::base32hex::decode(std::string text, bool liberal);
+  static
+  std::vector<uint8_t>  so::base16::decode(std::string text, bool liberal);
   ```
 
   > **Tip!**
-  > Turn `liberal` mode on will ignore invalid characters.
-  > (*Include incomplete/incorrect padding sequence.*)
+  > Turn `liberal` mode on will ignore invalid characters
+  > (*include incomplete/incorrect padding sequence*).
 
 - Encode data into a base-*n* string.
 
   ```cpp
-  so::base64::encode(std::vector<uint8_t> data, bool padding) -> std::string
-  so::base64url::encode(std::vector<uint8_t> data, bool padding) -> std::string
-  so::base32::encode(std::vector<uint8_t> data, bool padding) -> std::string
-  so::base32hex::encode(std::vector<uint8_t> data, bool padding) -> std::string
-  so::base16::encode(std::vector<uint8_t> data, bool padding) -> std::string
+  static
+  std::string  so::base64::encode(std::vector<uint8_t> data, bool padding);
+  static
+  std::string  so::base64url::encode(std::vector<uint8_t> data, bool padding);
+  static
+  std::string  so::base32::encode(std::vector<uint8_t> data, bool padding);
+  static
+  std::string  so::base32hex::encode(std::vector<uint8_t> data, bool padding);
+  static
+  std::string  so::base16::encode(std::vector<uint8_t> data, bool padding);
   ```
 
   > **Note!**
@@ -40,18 +50,28 @@ See [base-n.hpp](include/base-n.hpp).
 - Corresponding functions to play with `string` data.
 
   ```cpp
-  so::base64::decode_text(std::string text, bool liberal) -> std::string
-  so::base64url::decode_text(std::string text, bool liberal) -> std::string
-  so::base32::decode_text(std::string text, bool liberal) -> std::string
-  so::base32hex::decode_text(std::string text, bool liberal) -> std::string
-  so::base16::decode_text(std::string text, bool liberal) -> std::string
+  static
+  std::string  so::base64::decode_text(std::string text, bool liberal);
+  static
+  std::string  so::base64url::decode_text(std::string text, bool liberal);
+  static
+  std::string  so::base32::decode_text(std::string text, bool liberal);
+  static
+  std::string  so::base32hex::decode_text(std::string text, bool liberal);
+  static
+  std::string  so::base16::decode_text(std::string text, bool liberal);
   ```
   ```cpp
-  so::base64::encode(std::string data, bool padding) -> std::string
-  so::base64url::encode(std::string data, bool padding) -> std::string
-  so::base32::encode(std::string data, bool padding) -> std::string
-  so::base32hex::encode(std::string data, bool padding) -> std::string
-  so::base16::encode(std::string data, bool padding) -> std::string
+  static
+  std::string  so::base64::encode(std::string data, bool padding);
+  static
+  std::string  so::base64url::encode(std::string data, bool padding);
+  static
+  std::string  so::base32::encode(std::string data, bool padding);
+  static
+  std::string  so::base32hex::encode(std::string data, bool padding);
+  static
+  std::string  so::base16::encode(std::string data, bool padding);
   ```
 
   > **Note!**
@@ -72,7 +92,7 @@ std::cout << so::base64::decode_text("Zm9vYmE=Zm9vYg==Zm8=Zg==");
 > foobafoobfof
 > ```
 
-See http://stackoverflow.com/a/26632221 for reference.
+See http://stackoverflow.com/a/26632221 for an explanation.
 
 
 License
