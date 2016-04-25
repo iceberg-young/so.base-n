@@ -14,16 +14,16 @@ namespace so {
      public:
         constexpr size_t estimate(size_t text) const {
             return text
-              * base_t::per_unit.bytes
-              / base_t::per_unit.digits;
+              * base_t::bytes_per_unit
+              / base_t::digits_per_unit;
         }
 
      public:
         template<typename data_t>
         data_t decode(const std::string& text, bool liberal) const {
             const auto end = &*text.end();
-            uint8_t tmp[base_t::per_unit.digits];
-            uint8_t out[base_t::per_unit.bytes];
+            uint8_t tmp[base_t::digits_per_unit];
+            uint8_t out[base_t::bytes_per_unit];
 
             data_t data;
             data.reserve(this->estimate(text.size()));
@@ -39,7 +39,7 @@ namespace so {
      protected:
         size_t translate(const char*& in, uint8_t* tmp, const char* end, bool liberal) const {
             size_t n = 0;
-            while (in < end and n < base_t::per_unit.digits) {
+            while (in < end and n < base_t::digits_per_unit) {
                 try {
                     char c = *in++;
                     if (c == '=') {
@@ -62,7 +62,7 @@ namespace so {
                   "Incomplete data (" + std::to_string(n) + " digits)."
                 };
             }
-            size_t r = base_t::per_unit.digits - n - 1; // -already skipped.
+            size_t r = base_t::digits_per_unit - n - 1; // -already skipped.
             while (r--) {
                 if (*in++ != '=') {
                     throw std::out_of_range{"Incomplete padding."};

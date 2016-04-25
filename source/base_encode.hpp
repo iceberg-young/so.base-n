@@ -22,18 +22,18 @@ namespace so {
 
         constexpr size_t estimate(size_t data) const {
             return this->padding
-              ? (data + base_t::per_unit.bytes - 1)
-                / base_t::per_unit.bytes * base_t::per_unit.digits
-              : (data * base_t::per_unit.digits + base_t::per_unit.bytes - 1)
-                / base_t::per_unit.bytes;
+              ? (data + base_t::bytes_per_unit - 1)
+                / base_t::bytes_per_unit * base_t::digits_per_unit
+              : (data * base_t::digits_per_unit + base_t::bytes_per_unit - 1)
+                / base_t::bytes_per_unit;
         }
 
      public:
         template<typename data_t>
         std::string encode(const data_t& data) const {
             auto end = reinterpret_cast<const uint8_t*>(&*data.end());
-            uint8_t tmp[base_t::per_unit.digits];
-            char out[base_t::per_unit.digits];
+            uint8_t tmp[base_t::digits_per_unit];
+            char out[base_t::digits_per_unit];
 
             std::string text;
             text.reserve(this->estimate(data.size()));
