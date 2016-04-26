@@ -1,0 +1,31 @@
+{
+	"name": "so.base-n",
+	"version": "1.0.0",
+	"license": "LGPL-3.0",
+	"author": "Iceberg YOUNG <iceberg.young@gmail.com>",
+	"keywords": [
+		"Base 64",
+		"Base 64 URL",
+		"Base 32",
+		"Base 32 HEX",
+		"Base 16"
+	],
+	"main": "$.a",
+	"provides": {
+		"$.a": {
+			"type": "lib",
+			"rule": "archive",
+			"source": {
+				"source/*.cpp": "compile"
+			}
+		}
+	},
+	"tests": {
+		"rfc": {
+			"rule": "program",
+			"source": {
+				"test/rfc.cpp": "compile"
+			}
+		}
+	}
+}
