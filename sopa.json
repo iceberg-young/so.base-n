@@ -10,9 +10,9 @@
 		"Base 32 HEX",
 		"Base 16"
 	],
-	"main": "$.a",
 	"provides": {
-		"$.a": {
+		"^": "include",
+		"$": {
 			"type": "lib",
 			"rule": "archive",
 			"source": {
@@ -22,7 +22,6 @@
 	},
 	"tests": {
 		"rfc": {
-			"rule": "program",
 			"source": {
 				"test/rfc.cpp": "compile"
 			}
